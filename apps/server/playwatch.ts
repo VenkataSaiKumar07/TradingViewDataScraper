@@ -3,10 +3,6 @@ import { chromium, type Browser, type Page } from "playwright";
 // --- tiny helpers ---
 const tvUrl = (t: string) => `https://www.tradingview.com/symbols/${t.toUpperCase().trim()}/?exchange=BINANCE`;
 
-export async function getBrowser(existing?: Browser) {
-  return existing ?? chromium.launch({ headless: false });
-}
-
 export function extractPriceSimple(raw: string): number | null {
   const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (lines.length < 2) return null;
@@ -23,11 +19,10 @@ export function extractPriceSimple(raw: string): number | null {
 
 // Watch a ticker and yield the RAW header text whenever it CHANGES.
 // No parsing, no queue, just last-value check + single "next" resolver.
-export async function* streamTickerRaw(
+export async function* streamTickerPrice(
   ticker: string,
-  opts?: { browser?: Browser }
+  browser: Browser
 ): AsyncGenerator<{ ticker: string; price: number; ts: number }, void, void> {
-  const browser = await getBrowser(opts?.browser);
   const page: Page = await browser.newPage();
   await page.goto(tvUrl(ticker), { waitUntil: "domcontentloaded" });
 
@@ -54,9 +49,7 @@ export async function* streamTickerRaw(
 
 
     const payload = { ticker: ticker.toUpperCase(), price, ts: Date.now() };
-    console.log("-------------------------------------------------");
-    console.log(`[price:${ticker}]`, price); // <— you wanted to see this BEFORE parsing
-    console.log("-------------------------------------------------");
+    console.log(`${ticker}:`, price); // <— you wanted to see this BEFORE parsing
 
     if (resolveNext) {
       const r = resolveNext;
@@ -103,6 +96,5 @@ export async function* streamTickerRaw(
       if (obs) obs.disconnect();
     });
     await page.close().catch(() => {});
-    if (!opts?.browser) await browser.close().catch(() => {});
   }
 }
