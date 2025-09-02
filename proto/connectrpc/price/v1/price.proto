@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package connectrpc.price.v1;
+
+message SubscribeTickerRequest {
+  string ticker = 1;
+}
+
+message SubscribeTickerResponse {
+  string ticker = 1;
+  string value  = 2;
+  int64  ts     = 3;
+}
+
+service PriceService {
+  rpc SubscribeTicker(SubscribeTickerRequest) returns (stream SubscribeTickerResponse);
+}

@@ -1,0 +1,23 @@
+{
+  "name": "project_pluto_assesment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "codegen": "buf generate",
+    "server": "pnpm --filter ./apps/server dev",
+    "client": "pnpm --filter ./apps/server client"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@bufbuild/buf": "^1.57.0",
+    "@bufbuild/protobuf": "^2.7.0",
+    "@bufbuild/protoc-gen-es": "^2.7.0",
+    "@connectrpc/connect": "^2.1.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
