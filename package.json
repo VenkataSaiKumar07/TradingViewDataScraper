@@ -3,21 +3,30 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "codegen": "buf generate",
     "server": "pnpm --filter ./apps/server dev",
-    "client": "pnpm --filter ./apps/server client"
+    "client": "pnpm --filter ./apps/client dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@bufbuild/buf": "^1.57.0",
     "@bufbuild/protobuf": "^2.7.0",
     "@bufbuild/protoc-gen-es": "^2.7.0",
     "@connectrpc/connect": "^2.1.0",
-    "tsx": "^4.20.5",
+    "@connectrpc/connect-web": "^2.1.0",
+    "next": "^14.2.32",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsx": "^4.20.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.11",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
     "typescript": "^5.9.2"
   }
 }

@@ -1,5 +1,10 @@
+packages:
+  - apps/*
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+
 onlyBuiltDependencies:
   - '@bufbuild/buf'
   - esbuild
-packages:
-  - "apps/*"

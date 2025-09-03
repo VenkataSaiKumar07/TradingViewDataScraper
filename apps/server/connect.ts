@@ -8,8 +8,10 @@ const hub = new TickerHub();
 
 export default (router: ConnectRouter) =>
   router.service(PriceService, {
-    async *subscribeTicker(req: SubscribeTickerRequest, ctx) {
-      const ticker = (req.ticker ?? "").toUpperCase().trim();
+    async *subscribeTicker(req, ctx) {
+      console.log("[PriceService] subscribeTicker called with:", req);
+      const r = req as unknown as SubscribeTickerRequest;
+      const ticker = (r.ticker ?? "").toUpperCase().trim();
 
       let resolve: ((v: IteratorResult<any>) => void) | null = null;
 
@@ -46,32 +48,3 @@ export default (router: ConnectRouter) =>
       }
     },
   });
-
-
-
-
-
-
-
-
-
-
-//   // registers connectrpc.price.v1.PriceService
-//   console.log("[Router] Registering PriceService...");
-//   router.service(PriceService, {
-//     // implements rpc GetPrice
-//     async *subscribeTicker(req: SubscribeTickerRequest, ctx: HandlerContext) {
-//       console.log("[PriceService] subscribeTicker called with:", req);
-//       const ticker = (req.ticker ?? "").toUpperCase().trim();
-//       for await (const u of streamTickerPrice(ticker)) {
-//         if (ctx.signal.aborted) break;
-//         // yield SubscribeTickerResponse.create({
-//         //   ticker,
-//         //   value: u.raw,               // ← raw text as-is (no parsing yet)
-//         //   ts: BigInt(u.ts),           // int64 → bigint
-//         // });
-//         yield { ticker, value: String(u.price), ts: BigInt(Date.now()) };
-//       }
-//     },
-//   });
-// };
