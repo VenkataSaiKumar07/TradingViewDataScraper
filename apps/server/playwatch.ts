@@ -36,9 +36,19 @@ export async function* streamTickerPrice(
   // page.on("console", (msg) => console.log(`[page:${ticker}]`, msg.text()));
 
   let lastPrice: number | undefined;
+  const queue: { ticker: string; price: number; ts: number }[] = [];
   let resolveNext:
     | ((r: IteratorResult<{ ticker: string; price: number; ts: number }>) => void)
     | null = null;
+
+  const push = (msg: { ticker: string; price: number; ts: number }) => {
+    if (resolveNext) {
+      const r = resolveNext; resolveNext = null;
+      r({ value: msg, done: false });
+    } else {
+      queue.push(msg);
+    }
+  };
 
   // bridge page -> node
   await page.exposeFunction("emitRawFromPage", (rawText: string) => {
@@ -50,11 +60,7 @@ export async function* streamTickerPrice(
     const payload = { ticker: ticker.toUpperCase(), price, ts: Date.now() };
     console.log(`${ticker}:`, price); // <— you wanted to see this BEFORE parsing
 
-    if (resolveNext) {
-      const r = resolveNext;
-      resolveNext = null;
-      r({ value: payload, done: false });
-    }
+    push({ ticker: ticker.toUpperCase(), price, ts: Date.now() });
   });
 
   // attach a MutationObserver and also emit initial text once
@@ -82,6 +88,11 @@ export async function* streamTickerPrice(
     // generator: wait for next emit each time (no queue)
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      if (queue.length) {
+        const msg = queue.shift()!;
+        yield msg;
+        continue;
+      }
       const next = await new Promise<IteratorResult<{ ticker: string; price: number; ts: number }>>(
         (res) => (resolveNext = res)
       );
