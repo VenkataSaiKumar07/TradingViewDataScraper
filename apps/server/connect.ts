@@ -2,6 +2,8 @@ import type { ConnectRouter, HandlerContext } from "@connectrpc/connect";
 import { PriceService } from "../../gen/connectrpc/price/v1/price_pb";
 import type { SubscribeTickerRequest } from "../../gen/connectrpc/price/v1/price_pb";
 import { TickerHub } from "./ticker_hub";
+import { create } from "@bufbuild/protobuf";
+import { SubscribeTickerResponseSchema } from "../../gen/connectrpc/price/v1/price_pb";
 
 const hub = new TickerHub();
 
@@ -12,7 +14,7 @@ export default (router: ConnectRouter) =>
       console.log("[PriceService] subscribeTicker called with:", req);
       const r = req as unknown as SubscribeTickerRequest;
       const ticker = (r.ticker ?? "").toUpperCase().trim();
-
+      
       let resolve: ((v: IteratorResult<any>) => void) | null = null;
 
       const unsubscribe = await hub.subscribe(ticker, (u) => {
@@ -30,12 +32,13 @@ export default (router: ConnectRouter) =>
 
       try {
         const last = hub.getLast(ticker);
+        console.log(`[PriceService] ticker sending the price ${last?.price} for ${ticker}`);
         if (last) {
-          yield {
+          yield create(SubscribeTickerResponseSchema, {
             ticker,
             value: last.price.toString(),
             ts: BigInt(last.ts),
-          };
+          });
         }
 
         while (!ctx.signal.aborted) {

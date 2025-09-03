@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ConnectRPC Streaming Test</title>
+</head>
+<body>
+  <h1>ConnectRPC Streaming Test</h1>
+  <pre id="log"></pre>
+  <script>
+    (async function () {
+      const log = (m) => (document.getElementById("log").textContent += m + "\n");
+      try {
+        const res = await fetch("http://127.0.0.1:8080/connectrpc.price.v1.PriceService/SubscribeTicker", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/connect+json",
+            "Accept": "application/connect+json",
+            "Connect-Protocol-Version": "1"
+          },
+          body: JSON.stringify({ ticker: "ETHUSD" })
+        });
+
+        if (!res.ok) {
+          log(`HTTP ${res.status}`);
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            log("<< stream closed >>");
+            break;
+          }
+          log(decoder.decode(value));
+        }
+      } catch (err) {
+        log("Error: " + err);
+        console.error(err);
+      }
+    })();
+  </script>
+</body>
+</html>

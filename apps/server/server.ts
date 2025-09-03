@@ -1,9 +1,41 @@
 import http from "http";
 import express from "express";
 import routes from "./connect";
+import cors from "cors";
 import { expressConnectMiddleware } from "@connectrpc/connect-express";
 
 const app = express();
+
+
+const ALLOW_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"];
+
+app.use(
+  cors({
+    // Use a function so we can allow 'null' (file://) cleanly
+    origin(origin, callback) {
+      // Non-browser clients or same-origin (no Origin header)
+      if (!origin) return callback(null, true);
+
+      // file:// requests show up as the literal string "null"
+      if (origin === "null") return callback(null, true);
+
+      if (ALLOW_ORIGINS.includes(origin)) return callback(null, true);
+
+      // Block everything else
+      return callback(null, false);
+    },
+    methods: ["POST", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Accept",
+      "Connect-Protocol-Version",
+      "Connect-Content-Encoding",
+      "Connect-Accept-Encoding",
+      "X-User-Agent",
+    ],
+    // credentials: false, // default; keep it off unless you need cookies
+  })
+);
 
 app.use((req, _res, next) => {
   console.log(

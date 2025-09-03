@@ -50,7 +50,7 @@ export default function TokenPrices() {
               <div className={styles.row} role="listitem" key={t.symbol}>
                 <span className={styles.symbol} title={t.symbol}>{t.symbol}</span>
                 <span className={styles.price} aria-live="polite">
-                  {t.isLoading ? "Loading…" : "—"}
+                  {t.isLoading ? "Loading…" : (t.price ?? "—")}
                 </span>
                 <button
                   className={styles.removeButton}

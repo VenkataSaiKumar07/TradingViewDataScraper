@@ -20,7 +20,7 @@ function subscribe(ticker: string) {
   const task = (async () => {
     try {
       for await (const u of client.subscribeTicker({ ticker }, { signal: ac.signal })) {
-        console.log(`[${ticker}] price=${u.value} ts=${u.ts.toString()}`);
+        console.log(`[${ticker}] ${u}`);
       }
     } catch (e: any) {
       // Normalize both cases: AbortController or ConnectError(Code.Canceled)

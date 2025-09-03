@@ -33,7 +33,7 @@ export async function* streamTickerPrice(
   await box.waitFor({ state: "visible", timeout: 15_000 });
 
   // log page console too (helps while validating content)
-  page.on("console", (msg) => console.log(`[page:${ticker}]`, msg.text()));
+  // page.on("console", (msg) => console.log(`[page:${ticker}]`, msg.text()));
 
   let lastPrice: number | undefined;
   let resolveNext:
@@ -46,7 +46,6 @@ export async function* streamTickerPrice(
     const price = extractPriceSimple(raw)
     if (!price || price === lastPrice) return; // dedupe only
     lastPrice = price;
-
 
     const payload = { ticker: ticker.toUpperCase(), price, ts: Date.now() };
     console.log(`${ticker}:`, price); // <— you wanted to see this BEFORE parsing

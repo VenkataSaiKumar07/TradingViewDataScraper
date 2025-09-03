@@ -16,6 +16,7 @@
     "@connectrpc/connect": "^2.1.0",
     "@connectrpc/connect-express": "^2.1.0",
     "@connectrpc/connect-node": "^2.1.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "playwright": "^1.55.0"
   },

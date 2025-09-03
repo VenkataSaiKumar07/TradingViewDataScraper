@@ -6,7 +6,7 @@ type Subscriber = (payload: { ticker: string; price: number; ts: number }) => vo
 
 type Last = { price: number; ts: number };
 
-const IDLE_CLOSE_MS = 20_000;
+const IDLE_CLOSE_MS = 0;
 
 interface Topic {
   subs: Set<Subscriber>;

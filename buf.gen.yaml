@@ -5,3 +5,7 @@ plugins:
     # Also generate any imported dependencies
     include_imports: true
     opt: target=ts
+  - local: protoc-gen-connect-es
+    out: gen
+    opt:
+      - target=ts
