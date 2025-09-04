@@ -16,8 +16,10 @@ export default (router: ConnectRouter) =>
       const ticker = (r.ticker ?? "").toUpperCase().trim();
       
       let resolve: ((v: IteratorResult<any>) => void) | null = null;
+      let unsubbed = false;
 
       const unsubscribe = await hub.subscribe(ticker, (u) => {
+        if (unsubbed) return;
         if (!resolve) return;
         const r = resolve; resolve = null;
         r({
@@ -30,15 +32,36 @@ export default (router: ConnectRouter) =>
         });
       });
 
+      const doUnsub = async () => {
+        if (unsubbed) return;
+        unsubbed = true;
+        try { await unsubscribe(); } catch {}
+      };
+
+      const wakeDone = () => {
+        if (resolve) { const r = resolve; resolve = null; r({ value: undefined as any, done: true }); }
+      };
+
       try {
         const last = hub.getLast(ticker);
         console.log(`[PriceService] ticker sending the price ${last?.price} for ${ticker}`);
-        if (last) {
+        if (last?.price != null) {
           yield create(SubscribeTickerResponseSchema, {
             ticker,
             value: last.price.toString(),
             ts: BigInt(last.ts),
           });
+        }
+
+        if (ctx.signal.aborted) {
+          await doUnsub();
+          wakeDone();
+          return; // exit immediately
+        } else {
+          ctx.signal.addEventListener("abort", () => {
+            // unsubscribe now and wake the pending await so we don't wait for another tick
+            (async () => { await doUnsub(); wakeDone(); })().catch(() => {});
+          }, { once: true });
         }
 
         while (!ctx.signal.aborted) {
@@ -47,7 +70,7 @@ export default (router: ConnectRouter) =>
           yield next.value!;
         }
       } finally {
-        await unsubscribe();
+        await doUnsub();
       }
     },
   });

@@ -33,7 +33,9 @@ export class TickerHub {
     if (!topic) {
       const subs = new Set<Subscriber>();
       const abort = new AbortController();
-      const stop = async () => abort.abort();
+      const stop = async () => {
+        if (!abort.signal.aborted) abort.abort();
+      };
 
       topic = { subs, stop, idleTimer: null };
       this.topics.set(ticker, topic);
@@ -43,7 +45,7 @@ export class TickerHub {
       // Start the Playwright stream for this ticker
       (async () => {
         console.log("[hub] start page for", ticker);
-        for await (const u of streamTickerPrice(ticker, browser)) {
+        for await (const u of streamTickerPrice(ticker, browser, abort.signal)) {
           if (abort.signal.aborted) break;
           topic!.last = { price: u.price, ts: u.ts };
           for (const s of subs) s(u); // fan-out to subscribers

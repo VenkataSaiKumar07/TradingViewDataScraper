@@ -21,8 +21,11 @@ export function extractPriceSimple(raw: string): number | null {
 // No parsing, no queue, just last-value check + single "next" resolver.
 export async function* streamTickerPrice(
   ticker: string,
-  browser: Browser
+  browser: Browser,
+  signal: AbortSignal,
 ): AsyncGenerator<{ ticker: string; price: number; ts: number }, void, void> {
+  let alive = true;
+
   const page: Page = await browser.newPage();
   await page.goto(tvUrl(ticker), { waitUntil: "domcontentloaded" });
 
@@ -42,6 +45,7 @@ export async function* streamTickerPrice(
     | null = null;
 
   const push = (msg: { ticker: string; price: number; ts: number }) => {
+    if (!alive) return;
     if (resolveNext) {
       const r = resolveNext; resolveNext = null;
       r({ value: msg, done: false });
@@ -49,6 +53,34 @@ export async function* streamTickerPrice(
       queue.push(msg);
     }
   };
+
+  const stopNow = async () => {
+    if (!alive) return;
+    alive = false;
+    try {
+      await page.evaluate(() => {
+        // @ts-ignore
+        (window as any).__tvStopped__ = true;
+        // @ts-ignore
+        const obs = (window as any).__tvObs__ as MutationObserver | undefined;
+        if (obs) obs.disconnect();
+        // @ts-ignore
+        (window as any).emitRawFromPage = () => {};
+      });
+    } catch {}
+    if (resolveNext) { 
+      const r = resolveNext; 
+      resolveNext = null; 
+      r({ value: undefined as any, done: true }); 
+    }
+  };
+
+  if (signal.aborted) {
+    await stopNow(); // handle race: aborted before listener added
+    // fall through to finally{}
+  } else {
+    signal.addEventListener("abort", () => { void stopNow(); }, { once: true });
+  }
 
   // bridge page -> node
   await page.exposeFunction("emitRawFromPage", (rawText: string) => {
