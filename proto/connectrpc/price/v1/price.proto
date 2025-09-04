@@ -12,6 +12,11 @@ message SubscribeTickerResponse {
   int64  ts     = 3;
 }
 
+message SubscribeManyRequest { 
+  repeated string tickers = 1; 
+}
+
 service PriceService {
   rpc SubscribeTicker(SubscribeTickerRequest) returns (stream SubscribeTickerResponse);
+  rpc SubscribeMany(SubscribeManyRequest) returns (stream SubscribeTickerResponse);
 }

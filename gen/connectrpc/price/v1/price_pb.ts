@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file connectrpc/price/v1/price.proto.
  */
 export const file_connectrpc_price_v1_price: GenFile = /*@__PURE__*/
-  fileDesc("Ch9jb25uZWN0cnBjL3ByaWNlL3YxL3ByaWNlLnByb3RvEhNjb25uZWN0cnBjLnByaWNlLnYxIigKFlN1YnNjcmliZVRpY2tlclJlcXVlc3QSDgoGdGlja2VyGAEgASgJIkQKF1N1YnNjcmliZVRpY2tlclJlc3BvbnNlEg4KBnRpY2tlchgBIAEoCRINCgV2YWx1ZRgCIAEoCRIKCgJ0cxgDIAEoAzJ+CgxQcmljZVNlcnZpY2USbgoPU3Vic2NyaWJlVGlja2VyEisuY29ubmVjdHJwYy5wcmljZS52MS5TdWJzY3JpYmVUaWNrZXJSZXF1ZXN0GiwuY29ubmVjdHJwYy5wcmljZS52MS5TdWJzY3JpYmVUaWNrZXJSZXNwb25zZTABYgZwcm90bzM");
+  fileDesc("Ch9jb25uZWN0cnBjL3ByaWNlL3YxL3ByaWNlLnByb3RvEhNjb25uZWN0cnBjLnByaWNlLnYxIigKFlN1YnNjcmliZVRpY2tlclJlcXVlc3QSDgoGdGlja2VyGAEgASgJIkQKF1N1YnNjcmliZVRpY2tlclJlc3BvbnNlEg4KBnRpY2tlchgBIAEoCRINCgV2YWx1ZRgCIAEoCRIKCgJ0cxgDIAEoAyInChRTdWJzY3JpYmVNYW55UmVxdWVzdBIPCgd0aWNrZXJzGAEgAygJMuoBCgxQcmljZVNlcnZpY2USbgoPU3Vic2NyaWJlVGlja2VyEisuY29ubmVjdHJwYy5wcmljZS52MS5TdWJzY3JpYmVUaWNrZXJSZXF1ZXN0GiwuY29ubmVjdHJwYy5wcmljZS52MS5TdWJzY3JpYmVUaWNrZXJSZXNwb25zZTABEmoKDVN1YnNjcmliZU1hbnkSKS5jb25uZWN0cnBjLnByaWNlLnYxLlN1YnNjcmliZU1hbnlSZXF1ZXN0GiwuY29ubmVjdHJwYy5wcmljZS52MS5TdWJzY3JpYmVUaWNrZXJSZXNwb25zZTABYgZwcm90bzM");
 
 /**
  * @generated from message connectrpc.price.v1.SubscribeTickerRequest
@@ -57,6 +57,23 @@ export const SubscribeTickerResponseSchema: GenMessage<SubscribeTickerResponse> 
   messageDesc(file_connectrpc_price_v1_price, 1);
 
 /**
+ * @generated from message connectrpc.price.v1.SubscribeManyRequest
+ */
+export type SubscribeManyRequest = Message<"connectrpc.price.v1.SubscribeManyRequest"> & {
+  /**
+   * @generated from field: repeated string tickers = 1;
+   */
+  tickers: string[];
+};
+
+/**
+ * Describes the message connectrpc.price.v1.SubscribeManyRequest.
+ * Use `create(SubscribeManyRequestSchema)` to create a new message.
+ */
+export const SubscribeManyRequestSchema: GenMessage<SubscribeManyRequest> = /*@__PURE__*/
+  messageDesc(file_connectrpc_price_v1_price, 2);
+
+/**
  * @generated from service connectrpc.price.v1.PriceService
  */
 export const PriceService: GenService<{
@@ -66,6 +83,14 @@ export const PriceService: GenService<{
   subscribeTicker: {
     methodKind: "server_streaming";
     input: typeof SubscribeTickerRequestSchema;
+    output: typeof SubscribeTickerResponseSchema;
+  },
+  /**
+   * @generated from rpc connectrpc.price.v1.PriceService.SubscribeMany
+   */
+  subscribeMany: {
+    methodKind: "server_streaming";
+    input: typeof SubscribeManyRequestSchema;
     output: typeof SubscribeTickerResponseSchema;
   },
 }> = /*@__PURE__*/
