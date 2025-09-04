@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx server.ts",
-    "client": "tsx client.ts",
     "postinstall": "playwright install chromium"
   },
   "keywords": [],
