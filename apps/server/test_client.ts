@@ -52,10 +52,8 @@ async function main() {
   // demo: remove one after 10s
   setTimeout(() => unsubscribe("SOLUSD"), 10_000);
 
-  // demo: add another later
   // setTimeout(() => subscribe("DOGEUSD"), 12_000);
 
   // setTimeout(() => unsubscribe("ETHUSD"), 12_000);
-  // keep process alive; Ctrl+C to exit (or add your own timers)
 }
 main();

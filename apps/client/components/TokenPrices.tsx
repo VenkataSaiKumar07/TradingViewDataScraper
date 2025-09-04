@@ -12,6 +12,7 @@ export default function TokenPrices() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
+    console.log(`[Client] Calling server on Ticker: ${input}`)
     const ok = addTicker(input);
     if (ok) {
       setInput("");

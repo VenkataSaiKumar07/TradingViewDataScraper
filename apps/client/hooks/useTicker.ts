@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Ticker } from "@/lib/types";
 import { startTicker, stopTicker, stopAll } from "@/lib/tickerStreams";
-import type { SubscribeTickerResponse } from "../../../gen/connectrpc/price/v1/price_pb";
 
 
 const normalize = (raw: string) =>
@@ -20,11 +19,9 @@ export function useTickers() {
     setTickersMap(prev => ({ ...prev, [symbol]: { symbol, isLoading: true } }));
 
     // open backend stream; update row on each push
-    console.log("update add 123");
+    console.log(`[client] Adding the Ticker: ${symbol} to Price List`);
     startTicker(symbol, (u) => {
-      console.log("update", u.ticker, u.value, u.ts);
       setTickersMap(prev => {
-        // if user removed it meanwhile, ignore
         if (!prev[u.ticker]) return prev;
         return {
           ...prev,
@@ -43,6 +40,7 @@ export function useTickers() {
 
   const removeTicker = useCallback((symbol: string) => {
     stopTicker(symbol); // unsubscribe on backend
+    console.log(`[client] Removing the Ticker: ${symbol} from Price List`);
     setTickersMap(prev => {
       const { [symbol]: _omit, ...rest } = prev;
       return rest;

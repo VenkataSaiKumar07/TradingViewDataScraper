@@ -90,7 +90,7 @@ export async function* streamTickerPrice(
     lastPrice = price;
 
     const payload = { ticker: ticker.toUpperCase(), price, ts: Date.now() };
-    console.log(`${ticker}:`, price); // <— you wanted to see this BEFORE parsing
+    console.log(`[Playwright] Scrapped price for ${ticker}:`, price);
 
     push({ ticker: ticker.toUpperCase(), price, ts: Date.now() });
   });

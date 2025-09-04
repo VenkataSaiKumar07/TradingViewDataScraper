@@ -50,19 +50,18 @@ export function startTicker(rawSymbol: string, onUpdate: OnUpdate): () => void {
 export function stopTicker(rawSymbol: string) {
   const symbol = norm(rawSymbol);
   const ac = ctrls.get(symbol);
+  console.log("[stream] Closing Stream for", symbol);
   if (ac) {
     ac.abort();
     ctrls.delete(symbol);
   }
 }
 
-/** Abort all streams (e.g., when no tickers remain or on unmount). */
 export function stopAll() {
   for (const [, ac] of ctrls) ac.abort();
   ctrls.clear();
 }
 
-/** Optional: how many active streams are open. */
 export function activeCount() {
   return ctrls.size;
 }

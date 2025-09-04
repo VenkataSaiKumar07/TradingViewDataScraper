@@ -7,11 +7,10 @@ import { SubscribeTickerResponseSchema } from "../../gen/connectrpc/price/v1/pri
 
 const hub = new TickerHub();
 
-
 export default (router: ConnectRouter) =>
   router.service(PriceService, {
     async *subscribeTicker(req, ctx) {
-      console.log("[PriceService] subscribeTicker called with:", req);
+      console.log("[PriceConnect] subscribeTicker called with:", req);
       const r = req as unknown as SubscribeTickerRequest;
       const ticker = (r.ticker ?? "").toUpperCase().trim();
       
@@ -22,6 +21,7 @@ export default (router: ConnectRouter) =>
         if (unsubbed) return;
         if (!resolve) return;
         const r = resolve; resolve = null;
+        console.log(`[PriceConnect] Pushing ticker: ${ticker}, price: ${String(u.price)} data to client`);
         r({
           value: {
             ticker,
@@ -35,6 +35,7 @@ export default (router: ConnectRouter) =>
       const doUnsub = async () => {
         if (unsubbed) return;
         unsubbed = true;
+        console.log(`[PriceConnect] Cancelling streaming for ticker: ${ticker}`);
         try { await unsubscribe(); } catch {}
       };
 
@@ -44,7 +45,6 @@ export default (router: ConnectRouter) =>
 
       try {
         const last = hub.getLast(ticker);
-        console.log(`[PriceService] ticker sending the price ${last?.price} for ${ticker}`);
         if (last?.price != null) {
           yield create(SubscribeTickerResponseSchema, {
             ticker,
@@ -70,6 +70,7 @@ export default (router: ConnectRouter) =>
           yield next.value!;
         }
       } finally {
+        console.log(`[PriceConnect] Closed streaming for ticker: ${ticker}`);
         await doUnsub();
       }
     },

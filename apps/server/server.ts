@@ -11,12 +11,9 @@ const ALLOW_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"];
 
 app.use(
   cors({
-    // Use a function so we can allow 'null' (file://) cleanly
     origin(origin, callback) {
-      // Non-browser clients or same-origin (no Origin header)
       if (!origin) return callback(null, true);
 
-      // file:// requests show up as the literal string "null"
       if (origin === "null") return callback(null, true);
 
       if (ALLOW_ORIGINS.includes(origin)) return callback(null, true);
@@ -33,7 +30,6 @@ app.use(
       "Connect-Accept-Encoding",
       "X-User-Agent",
     ],
-    // credentials: false, // default; keep it off unless you need cookies
   })
 );
 
@@ -44,7 +40,7 @@ app.use((req, _res, next) => {
   next();
 });
 
-// 🩺 Simple health endpoint to confirm server is alive
+// health endpoint to confirm server is alive
 app.get("/healthz", (_req, res) => res.send("ok"));
 
 
@@ -55,11 +51,8 @@ app.use(expressConnectMiddleware({
 const PORT = 8080;
 http.createServer(app).listen(PORT, () => {
   console.log(`[server] ConnectRPC listening at http://localhost:${PORT}`);
-  console.log(`[server] Example RPC: POST http://localhost:${PORT}/price.v1.PriceService/SubscribeTicker`);
+  console.log(`[server] Example RPC: POST http://localhost:${PORT}/connectrpc.price.v1.PriceService/SubscribeTicker`);
 });
-
-
-
 
 // curl -N \
 //   -H 'Content-Type: application/json' \
