@@ -1,6 +1,6 @@
-import { Browser } from "playwright";
+import { BrowserContext } from "playwright";
 import { streamTickerPrice } from "./playwatch"; // your existing Playwright streamer
-import { getBrowser } from "./browser";              // simple singleton browser launcher
+import { getBrowserContext } from "./browser";              // simple singleton browser launcher
 
 type Subscriber = (payload: { ticker: string; price: number; ts: number }) => void;
 
@@ -16,14 +16,12 @@ interface Topic {
 }
 
 export class TickerHub {
-  private browser?: Browser;
+  private ctx?: BrowserContext;
   private topics = new Map<string, Topic>();
 
-  private async ensureBrowser(): Promise<Browser> {
-    if (!this.browser) {
-      this.browser = await getBrowser();
-    }
-    return this.browser;
+  private async ensureBrowser(): Promise<BrowserContext> {
+    if (!this.ctx) this.ctx = await getBrowserContext();
+    return this.ctx;
   }
 
   async subscribe(ticker: string, push: Subscriber): Promise<() => Promise<void>> {
@@ -40,12 +38,12 @@ export class TickerHub {
       topic = { subs, stop, idleTimer: null };
       this.topics.set(ticker, topic);
 
-      const browser = await this.ensureBrowser();
+      const context = await this.ensureBrowser();
 
       // Start the Playwright stream for this ticker
       (async () => {
         console.log("[hub] start page for", ticker);
-        for await (const u of streamTickerPrice(ticker, browser, abort.signal)) {
+        for await (const u of streamTickerPrice(ticker, context, abort.signal)) {
           if (abort.signal.aborted) break;
           topic!.last = { price: u.price, ts: u.ts };
           for (const s of subs) s(u); // fan-out to subscribers

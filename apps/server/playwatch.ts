@@ -1,4 +1,4 @@
-import { chromium, type Browser, type Page } from "playwright";
+import { chromium, BrowserContext, type Page } from "playwright";
 
 // --- tiny helpers ---
 const tvUrl = (t: string) => `https://www.tradingview.com/symbols/${t.toUpperCase().trim()}/?exchange=BINANCE`;
@@ -21,12 +21,12 @@ export function extractPriceSimple(raw: string): number | null {
 // No parsing, no queue, just last-value check + single "next" resolver.
 export async function* streamTickerPrice(
   ticker: string,
-  browser: Browser,
+  context: BrowserContext,
   signal: AbortSignal,
 ): AsyncGenerator<{ ticker: string; price: number; ts: number }, void, void> {
   let alive = true;
 
-  const page: Page = await browser.newPage();
+  const page: Page = await context.newPage();
   await page.goto(tvUrl(ticker), { waitUntil: "domcontentloaded" });
 
   const header = page.locator(".js-symbol-page-header-root:visible").first();
