@@ -1,5 +1,3 @@
-Hey Team — thanks for the opportunity! A few quick notes to help you review:
-
 What I Built
 
 Reliable streaming: fixed the two common races (missing initial tick + late-unsubscribe) with a tiny queue and immediate abort cleanup.
